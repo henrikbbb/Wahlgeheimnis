@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wahlgeheimnis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #start-menu, #game-container, #result {
+            margin-top: 30px;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        button {
+            font-size: 1.2em;
+            padding: 15px 30px;
+            cursor: pointer;
+            border: 2px solid #007BFF;
+            border-radius: 8px;
+            background-color: #f0f8ff;
+            color: #007BFF;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 180px;
+        }
+        button:hover {
+            background-color: #007BFF;
+            color: white;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(1);
+        }
+        .result {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        #score {
+            font-size: 1.5em;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wahlgeheimnis</h1>
+    <p>Die beiden Spieler müssen den gleichen Begriff wählen.</p>
+
+    <!-- Startmenü -->
+    <div id="start-menu">
+        <h2>Willkommen zum Begriffs-Spiel!</h2>
+        <button onclick="startGame()">Spiel Starten</button>
+    </div>
+
+    <!-- Spielbereich -->
+    <div id="game-container" class="hidden">
+        <!-- Schritt 1 -->
+        <div id="step1" class="step">
+            <h2>Schritt 1: Spieler 1 wählt einen Begriff</h2>
+            <p>Spieler 1: Wähle einen der folgenden Begriffe:</p>
+            <div id="options1" class="button-container">
+                <!-- Begriffe werden hier dynamisch eingefügt -->
+            </div>
+        </div>
+
+        <!-- Schritt 2 -->
+        <div id="step2" class="step hidden">
+            <h2>Schritt 2: Spieler 2 wählt einen Begriff</h2>
+            <p>Spieler 2: Wähle einen der folgenden Begriffe:</p>
+            <div id="options2" class="button-container">
+                <!-- Begriffe werden hier dynamisch eingefügt -->
+            </div>
+        </div>
+
+        <!-- Ergebnis -->
+        <div id="result" class="result hidden">
+            <h2>Ergebnis</h2>
+            <p id="result-text"></p>
+            <button onclick="startNewRound()">neue Runde</button>
+        </div>
+    </div>
+
+    <!-- Punktestand -->
+    <div id="score" class="hidden">
+        <p>Punkte: <span id="points">0</span></p>
+		<p>Runde: <span id="rounds">1</span></p>
+    </div>
+
+    <script>
+        // Eine lange Liste von Begriffen (z.B. aus einer Textdatei kopiert)
+        const allBegriffe = [
+            "Spiegel", "Silvester", "Bad", "Kern", "Fee", "Kiste", "Playstation", "Blond", "Iris", "Mitglied", "Schraube", "Harke", "Computer", "Nespresso", "Ball", "Halloween", "Chip", "Baby", "Feldflasche", "Paar", "Barbie", "Schokolade", "Schnee", "Krawatte", "Wind", "Club", "Weihnachten", "Nähen", "Bahnhof", "Lampe", "Grillen", "Panda", "Traum", "Ehe", "Nabel", "Pfingsten", "Gummi", "Topf", "Flash", "Tunnel", "Ofen", "Griff", "Ostern", "Schlauch", "Schiene", "Schmetterling", "Puder", "Porzellan", "Markt", "Kokon", "Stock", "Musketier", "Faden", "Tulpe", "Ikea", "Mumie", "Batterie", "Rummel", "Karate", "Papagei", "Serie", "Nest", "Gewürz", "Elefant", "Karnval", "Blitz", "Garten", "Malerei", "Hütte", "Reformation", "Gedanke", "Frankenstein", "Strahl", "Akzent", "Dusche", "Marienkäfer", "Senf", "Sherlock", "Flasche", "Virus", "Gift", "Stern", "Wolf", "Lena", "Geburtstag", "Bäcker", "Parfum", "Flamme", "Zombie", "Joker", "Vulkan", "Leidenschaft", "Hahn", "Elektrizität", "Genie", "Dracula", "Löwe", "Socke", "Freitag", "Pirat", "Ferien", "Elfe", "Magnet", "Gabel", "Sirup", "Wald", "Waage", "Zeus", "Kakerlake", "Dinosaurier", "Gelb", "Pilz", "Taube", "Pikachu", "Asterix", "Roboter", "Komödie", "Sprache", "Friseur", "Cocktail", "Mario", "Korken", "Geige", "Pfirsich", "Fuchs", "Polizei", "Simpson", "Donut", "Zeitung", "Berge", "Erdnuss", "Glühbirne", "Jedi", "Chili", "Sombrero", "Kleeblatt", "Taste", "Käse", "Chewbacca", "Revolver", "Doktor", "Erdbeere", "Kernkraft", "Lotterie", "Friedhof", "Amor", "Regenschirm", "Sprung", "Wurzel", "Schatz", "Pilot", "Micky", "Kanalisation", "Galaxie", "Schnurrbart", "Blase", "Kette", "Stark", "Keks", "Croissant", "Geist", "Stroh", "Nagel", "Potter", "Darwin", "Tomate", "Fallschirm", "Kanone", "Fernglas", "Fata Morgana", "Ramses", "Feuer", "Kreuzung", "Prinzessin", "Raumschiff", "Bowling", "Churchill", "Widder", "Spion", "Olympiade", "Anwalt", "Tolkien", "Fluss", "Teppich", "Pony", "Krone", "Neu", "Tarantino", "Heino", "Ninja", "Bettdecke", "Jäger", "Gemüse", "Höhle", "Hans", "Casino", "Bonbon", "Brunnen", "Licht", "Sofa", "Mozart", "Ring", "Pizza", "Tradition", "Schlange", "Pokal", "Picasso", "Uhr", "Scheiterhaufen", "Zauberer", "Hockey", "Banane", "Helene", "Caesar", "Nudel", "Hut", "Zahnarzt", "Weizen", "Muschel", "Shakespeare", "Riese", "Schaum", "Keller", "Messer", "Kissen", "Armstrong", "Schwert", "Flug", "Ticket", "Pinguin", "Zelle", "Gandhi", "Oase", "Krokodil", "U-Bahn", "Schmuck", "Brille", "Jackson", "Zigarette", "Armband", "Wetterbericht", "Turm", "Tattoo", "Spielberg", "Apfel", "Meerjungfrau", "Boxen", "Zwerg", "Zirkus", "Elvis", "Rasenmäher", "Stein", "Zug", "Sardine", "Stück", "Kleopatra", "Fenster", "Granatapfel", "Füllung", "Bürste", "Schwein", "Avicii", "Alcatraz", "Rauch", "Haselnuss", "Diamant", "Rose", "Schnitzel", "Kanada", "Zoo", "Pfeife", "Buch", "Musik", "Hals", "Amerika", "Kaffee", "Fieber", "Ritter", "Frieden", "Blume", "Schweiz", "Kalender", "Hausschuh", "Blatt", "Puma", "Revolution", "Sahara", "Tokio", "Ferse", "Huhn", "Helikopter", "Offizier", "Herz", "Moskau", "Billiard", "Einhorn", "Orange", "Melone", "Anker", "Israel", "Kaktus", "Tennis", "Pfeffer", "Dreieck", "Puppe", "Italien", "Bühne", "Fleece", "Maus", "Kette", "Bauernhof", "Belgien", "Frankreich", "Kantine", "Kaiserpinguin", "Werkzeug", "Schnur", "Australien", "Schloss", "Wache", "Schaf", "Marionette", "Spiel", "Vegas", "Truhe", "Flugzeug", "Gehirn", "Maske", "Konzert", "Troja", "Hai", "Bild", "Feuerwehr", "Glas", "Kloß", "Griechenland", "Hollywood", "Mücke", "Lanze", "Börse", "Ende", "Hammer", "Chile", "Blutwurst", "Kaiser", "Papst", "Torte", "Hengst", "Mexiko", "Weiß", "Glatze", "Raupe", "Humor", "Ecke", "Antarktis", "Würstchen", "Plastik", "Rochen", "Karton", "Kiesel", "Everest", "Terminator", "Brief", "Kugel", "Paradies", "Ei", "Haus", "Pate", "Krieg", "Seil", "Wein", "Radio", "Birne", "Gladiator", "Sonne", "Getreide", "Beere", "Untersuchung", "Gotik", "Titanic", "Maschine", "Leiter", "Engel", "Narr", "Haar", "Matrix", "Avatar", "Mühle", "Dschungel", "Nonne", "Böller", "Pumpe", "Aladdin", "Rohr", "Gürtel", "Bar", "Mund", "Karussell", "Psycho", "Gras", "Sturz", "Doping", "Knoblauch", "Würfel", "Rocky", "Milch", "Eis", "Flöte", "Champagner", "Safari", "Alien", "Spartacus", "Fell", "Tornado", "Pyramide", "Ehering", "Zweig", "Cinderella", "Pfannkuchen", "Insel", "Taxi", "Segeln", "Camembert", "Shrek", "Pol", "Western", "Wikinger", "Alarm", "Tanz", "Hulk", "Wüste", "Ziege", "Brot", "Teufel", "Grundschule", "Tarzan", "Godzilla", "Uniform", "Regen", "Brand", "Helm", "Eisen", "Batman", "Lied", "Nil", "Kino", "Karies", "Ärmel", "Gremlins", "Poker", "Kuchen", "Zucker", "Theater", "Schaufel", "Enterprise", "Lautsprecher", "Katze", "Palast", "Wahl", "Honig", "Rambo", "Reggae", "Mist", "See", "Affe", "Leuchtturm", "Stadtviertel", "Rock", "Tiger", "Nadel", "Seife", "Gefängnis", "Loch", "Punk", "Abend", "Karte", "Misserfolg", "Geschichte", "Bier", "Disco", "Präsident", "Handtuch", "Venus", "Krake", "Zyklus", "Oper", "Tango", "Brombeere", "Tempel", "Sand", "Pommes", "König", "Ballet", "Band", "Alkohol", "Lava", "Kran", "Operation", "Rap", "Muse", "Verteidigung", "Nummer", "Triathlon", "Rum", "Metal", "Thunfisch", "Rache", "Chef", "Notfall", "Kreuz", "Walzer", "Google", "Bogen", "Mars", "Golf", "Ticket", "Mythos", "Facebook", "Eichel", "Gräte", "Brücke", "Stoff", "Vampir", "Monopoly", "Manga", "Hotel", "Mafia", "Groß", "Rakete", "Microsoft", "Ski", "Solitär", "Kartoffel", "Welle", "Schule", "Lego", "Ratte", "Zange", "Amazon", "Tabak", "Regel", "Nintendo", "Wette", "Salz", "Handbuch", "Gel"
+        ];
+
+        let player1Choice = null;
+        let player2Choice = null;
+        let points = 0;
+		let rounds = 0;
+        let remainingBegriffe = [...allBegriffe]; // Kopie der gesamten Liste
+        let roundBegriffe = []; // Begriffe für die aktuelle Runde, die beiden Spielern angezeigt werden
+
+        // Funktion zum Zufällig-Auswählen und Entfernen von 5 Begriffen
+        function getRandomBegriffe() {
+            if (remainingBegriffe.length < 5) {
+                alert("Nicht genügend Begriffe für eine neue Runde!");
+                return [];
+            }
+            const selectedBegriffe = [];
+            for (let i = 0; i < 5; i++) {
+                const randomIndex = Math.floor(Math.random() * remainingBegriffe.length);
+                selectedBegriffe.push(remainingBegriffe[randomIndex]);
+                remainingBegriffe.splice(randomIndex, 1); // Entfernen des Begriffs
+            }
+
+            return selectedBegriffe;
+        }
+
+        // Funktion zum Mischen der Begriffe
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Elemente tauschen
+            }
+            return array;
+        }
+
+        // Begriffe für die Spieler anzeigen
+        function generateOptions() {
+            const optionsContainer1 = document.getElementById('options1');
+            const optionsContainer2 = document.getElementById('options2');
+            optionsContainer1.innerHTML = ''; // Container leeren
+            optionsContainer2.innerHTML = ''; // Container leeren
+
+            // Die gleichen 5 Begriffe für beide Spieler generieren
+            roundBegriffe = getRandomBegriffe();
+
+            // Mische die Reihenfolge der Begriffe für beide Spieler
+            const shuffledForPlayer1 = shuffleArray([...roundBegriffe]); // Für Spieler 1
+            const shuffledForPlayer2 = shuffleArray([...roundBegriffe]); // Für Spieler 2
+
+            // Begriffe für Spieler 1 anzeigen
+            shuffledForPlayer1.forEach(begriff => {
+                const button1 = document.createElement('button');
+                button1.classList.add('option-btn');
+                button1.textContent = begriff;
+                button1.onclick = () => selectOption(begriff, 1);
+                optionsContainer1.appendChild(button1);
+            });
+
+            // Begriffe für Spieler 2 anzeigen
+            shuffledForPlayer2.forEach(begriff => {
+                const button2 = document.createElement('button');
+                button2.classList.add('option-btn');
+                button2.textContent = begriff;
+                button2.onclick = () => selectOption(begriff, 2);
+                optionsContainer2.appendChild(button2);
+            });
+        }
+
+        function selectOption(choice, player) {
+            if (player === 1) {
+                player1Choice = choice;
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+            } else {
+                player2Choice = choice;
+                evaluateRound();
+            }
+        }
+
+        function evaluateRound() {
+            const resultText = document.getElementById('result-text');
+            if (player1Choice === player2Choice) {
+                points++;
+                resultText.textContent = `Beide Spieler haben den gleichen Begriff gewählt: "${player1Choice}"`;
+            } else {
+                resultText.textContent = `Spieler 1 wählte "${player1Choice}" und Spieler 2 wählte "${player2Choice}".`;
+            }
+
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('score').classList.remove('hidden');
+            document.getElementById('points').textContent = points; // Punktestand aktualisieren
+        }
+
+        function startNewRound() {
+            if (remainingBegriffe.length < 5) {
+                alert("Nicht genügend Begriffe für neue Runden!");
+                return;
+            }
+			rounds++;
+			document.getElementById('rounds').textContent = rounds; // Rundenzahl aktualisieren
+			
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            player1Choice = null;
+            player2Choice = null;
+            generateOptions(); // Begriffe für beide Spieler anzeigen
+        }
+
+        function startGame() {
+            document.getElementById('start-menu').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            document.getElementById('score').classList.remove('hidden');
+            startNewRound(); // Start der ersten Runde
+        }
+    </script>
+</body>
+</html>
